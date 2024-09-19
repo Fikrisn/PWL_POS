@@ -45,6 +45,8 @@ class UserController extends Controller
         // $user = UserModel::find(1);
         // return view('user', ['data' => $user]);
 
+        //praktikum 2.1
+
         // $user = UserModel::Where('level_id', 1)->first();
         // return view('user', ['data' => $user]);
 
@@ -56,9 +58,14 @@ class UserController extends Controller
         // });
         // return view('user', ['data' => $user]);
 
-        $user = UserModel::findOr(20, ['username', 'nama'], function (){
-            abort(404);
-        });
+        // $user = UserModel::findOr(20, ['username', 'nama'], function (){
+        //     abort(404);
+        // });
+        // return view('user', ['data' => $user]);
+
+        //praktikum 2.2
+
+        $user = UserModel::findOrFail(1);
         return view('user', ['data' => $user]);
     }
 }
