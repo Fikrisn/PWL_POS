@@ -21,14 +21,25 @@ class UserController extends Controller
         // $user = UserModel::all();
         // return view('user', ['data' => $user]);
 
-        $data = [
-            'nama' => 'Pelanggan Pertama',
-        ];
-        UserModel::where('username', 'Customer-1')->update($data); 
+        // $data = [
+        //     'nama' => 'Pelanggan Pertama',
+        // ];
+        // UserModel::where('username', 'Customer-1')->update($data); 
         
         // mencoba mengakses model UserModel
-        $user = UserModel::all(); // Mengambil semua data dari tabel m_user
+        // $user = UserModel::all(); // Mengambil semua data dari tabel m_user
+        // return view('user', ['data' => $user]);
+
+        //praktikum 4
+        $data = [
+            'level_id' => 2,
+            'username' => 'manager_dua',
+            'nama' => 'Manager 2',
+            'password' => Hash::make('12345'),
+        ];
+        UserModel::create($data);
+
+        $user = UserModel::all();
         return view('user', ['data' => $user]);
     }
-
 }
