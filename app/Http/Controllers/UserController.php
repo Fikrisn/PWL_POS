@@ -65,7 +65,12 @@ class UserController extends Controller
 
         //praktikum 2.2
 
-        $user = UserModel::findOrFail(1);
+        // $user = UserModel::findOrFail(1);
+        // return view('user', ['data' => $user]);
+
+        //praktikum  2.3
+
+        $user = UserModel::where('level_id', 2)->count();
         return view('user', ['data' => $user]);
     }
 }
