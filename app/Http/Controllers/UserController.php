@@ -153,7 +153,15 @@ class UserController extends Controller
 
         //praktikum  2.6
 
-        $user = UserModel::all();
+        // $user = UserModel::all();
+        // return view('user', ['data' => $user]);
+
+        //praktikum 2.7
+
+        // $user = UserModel::with('level')->get();
+        // dd($user);
+
+        $user = UserModel::with('level')->get();
         return view('user', ['data' => $user]);
     }
 
@@ -192,7 +200,7 @@ class UserController extends Controller
     public function hapus($id){
         $user = UserModel::find($id);
         $user->delete();
-        
+
         return redirect('/user');
     }
 }
