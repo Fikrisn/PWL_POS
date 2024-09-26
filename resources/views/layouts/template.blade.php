@@ -35,7 +35,7 @@
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
-    @include('layouts.breadcrummb')
+    @include('layouts.breadcrumb')
 
     <!-- Main content -->
     <section class="content">
@@ -54,6 +54,6 @@
 <!-- Bootstrap 4 -->
 <script src="{{asset('adminlte/plugins/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
 <!-- AdminLTE App -->
-<script src="{{aseet('adminlte/dist/js/adminlte.min.js')}}"></script>
+<script src="{{asset('adminlte/dist/js/adminlte.min.js')}}"></script>
 </body>
 </html>
