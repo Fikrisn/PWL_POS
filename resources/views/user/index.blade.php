@@ -60,7 +60,7 @@
                 $('#myModal').modal('show');
             })
         }
-        var daraUser;
+        var dataUser;
         $(document).ready(function() {
             dataUser = $('#table_user').DataTable({
                 serverSide: true, // Menggunakan server-side processing
