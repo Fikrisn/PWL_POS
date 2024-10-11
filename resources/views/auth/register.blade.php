@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Login Pengguna</title>
+    <title>Registrasi Pengguna</title>
     <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
@@ -24,45 +24,77 @@
         <div class="card card-outline card-primary">
             <div class="card-header text-center"><a href="{{ url('/') }}" class="h1"><b>Admin</b>LTE</a></div>
             <div class="card-body">
-                <p class="login-box-msg">Sign in to start your session</p>
-                <form action="{{ url('login') }}" method="POST" id="form-login">
+                <p class="login-box-msg">Registrasi Pengguna Baru</p>
+                <form method="POST" action="{{ url('register') }}" id="form-register">
                     @csrf
                     <div class="input-group mb-3">
-                        <input type="text" id="username" name="username" class="form-control"
-                            placeholder="Username">
+                        <select class="form-control" id="level_id" name="level_id" required>
+                            <option value="">- Pilih Level -</option>
+                            @foreach ($level as $item)
+                                <option value="{{ $item->level_id }}">{{ $item->level_nama }}</option>
+                            @endforeach
+                        </select>
                         <div class="input-group-append">
                             <div class="input-group-text">
-                                <span class="fas fa-envelope"></span>
+                                <span class="fas fa-layer-group"></span>
                             </div>
                         </div>
-                        <small id="error-username" class="error-text text-danger"></small>
+                        @error('level_id')
+                            <small class="form-text text-danger">{{ $message }}</small>
+                        @enderror
                     </div>
                     <div class="input-group mb-3">
-                        <input type="password" id="password" name="password" class="form-control"
-                            placeholder="Password">
+                        <input type="text" id="username" name="username" class="form-control" placeholder="Username" value="{{ old('username') }}" required>
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span class="fas fa-user"></span>
+                            </div>
+                        </div>
+                        @error('username')
+                            <small class="form-text text-danger">{{ $message }}</small>
+                        @enderror
+                    </div>
+                    <div class="input-group mb-3">
+                        <input type="text" id="nama" name="nama" class="form-control" placeholder="Nama" value="{{ old('nama') }}" required>
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span class="fas fa-id-card"></span>
+                            </div>
+                        </div>
+                        @error('nama')
+                            <small class="form-text text-danger">{{ $message }}</small>
+                        @enderror
+                    </div>
+                    <div class="input-group mb-3">
+                        <input type="password" id="password" name="password" class="form-control" placeholder="Password" required>
                         <div class="input-group-append">
                             <div class="input-group-text">
                                 <span class="fas fa-lock"></span>
                             </div>
                         </div>
-                        <small id="error-password" class="error-text text-danger"></small>
+                        @error('password')
+                            <small class="form-text text-danger">{{ $message }}</small>
+                        @enderror
                     </div>
                     <div class="row">
                         <div class="col-8">
                             <div class="icheck-primary">
-                                <input type="checkbox" id="remember"><label for="remember">Remember Me</label>
+                                <input type="checkbox" id="agreeTerms" name="terms" value="agree">
+                                <label for="agreeTerms">
+                                    Saya setuju dengan <a href="#">syarat dan ketentuan</a>
+                                </label>
                             </div>
                         </div>
                         <!-- /.col -->
                         <div class="col-4">
-                            <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+                            <button type="submit" class="btn btn-primary btn-block">Registrasi</button>
                         </div>
                         <!-- /.col -->
                     </div>
-                    <!-- Tambahan untuk teks Registrasi -->
+                    <!-- Tambahan untuk teks login -->
                     <div class="row mt-2">
                         <div class="col-12 text-center">
-                            <p>Belum punya akun? <a href="{{ url('register') }}">Registrasi</a></p>
+                            <p>Sudah punya akun? <a href="{{ url('login') }}">Login</a></p>
                         </div>
                     </div>
                 </form>
@@ -86,14 +118,8 @@
     <script src="{{ asset('adminlte/dist/js/adminlte.min.js') }}"></script>
 
     <script>
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-        });
-
         $(document).ready(function() {
-            $("#form-login").validate({
+            $("#form-register").validate({
                 rules: {
                     level_id: {
                         required: true,
@@ -120,8 +146,7 @@
                                     title: 'Berhasil',
                                     text: response.message,
                                 }).then(function() {
-                                    window.location = response
-                                    .redirect; // Arahkan ke halaman login
+                                    window.location = response.redirect;
                                 });
                             } else {
                                 Swal.fire({
