@@ -67,7 +67,7 @@
     <!-- Logout Menu -->
     <li class="nav-item">
       <a class="nav-link" href="{{url('logout')}}" method='POST' role="button">
-        <i class="fas fa-sign-out-alt"></i> Logout
+        <i class="fas fa-sign-out-alt"></i>
       </a>
     </li>
   </ul>
