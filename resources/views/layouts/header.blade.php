@@ -66,10 +66,14 @@
     
     <!-- Logout Menu -->
     <li class="nav-item">
-      <a class="nav-link" href="{{url('logout')}}" method='POST' role="button">
-        <i class="fas fa-sign-out-alt"></i>
-      </a>
-    </li>
+    <form action="{{ url('logout') }}" method="GET" role="button">
+        @csrf
+        <button type="submit" class="btn btn-danger">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+    </form>
+</li>
+
   </ul>
 </nav>
 <script>

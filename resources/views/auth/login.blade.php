@@ -20,9 +20,8 @@
 
 <body class="hold-transition login-page">
     <div class="login-box">
-        <!-- /.login-logo -->
         <div class="card card-outline card-primary">
-            <div class="card-header text-center"><a href="{{ url('/') }}" class="h1"><b>Admin</b>LTE</a></div>
+            <div class="card-header text-center"><a href="{{ url('/') }}" class="h1"><b>PWL</b>POS</a></div>
             <div class="card-body">
                 <p class="login-box-msg">Sign in to start your session</p>
                 <form action="{{ url('login') }}" method="POST" id="form-login">
@@ -32,7 +31,7 @@
                             placeholder="Username">
                         <div class="input-group-append">
                             <div class="input-group-text">
-                                <span class="fas fa-envelope"></span>
+                                <span class="fas fa-user"></span>
                             </div>
                         </div>
                         <small id="error-username" class="error-text text-danger"></small>
@@ -62,7 +61,7 @@
                     <!-- Tambahan untuk teks Registrasi -->
                     <div class="row mt-2">
                         <div class="col-12 text-center">
-                            <p>Belum punya akun? <a href="{{ url('register') }}">Registrasi</a></p>
+                            <p>Dont have account? <a href="{{ url('register') }}" class="btn btn-success btn-block">Sing Up</a></p>
                         </div>
                     </div>
                 </form>
@@ -95,9 +94,6 @@
         $(document).ready(function() {
             $("#form-login").validate({
                 rules: {
-                    level_id: {
-                        required: true,
-                    },
                     username: {
                         required: true,
                         minlength: 4,
@@ -120,10 +116,13 @@
                                     title: 'Berhasil',
                                     text: response.message,
                                 }).then(function() {
-                                    window.location = response
-                                    .redirect; // Arahkan ke halaman login
+                                    window.location = response.redirect; // Arahkan ke halaman login
                                 });
                             } else {
+                                $('.error-text').text('');
+                            $.each(response.msgField, function(prefix, val) {
+                                $('#error-' + prefix).text(val[0]);
+                            });
                                 Swal.fire({
                                     icon: 'error',
                                     title: 'Terjadi Kesalahan',
@@ -138,5 +137,4 @@
         });
     </script>
 </body>
-
 </html>

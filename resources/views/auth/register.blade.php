@@ -149,6 +149,10 @@
                                     window.location = response.redirect;
                                 });
                             } else {
+                                $('.error-text').text('');
+                            $.each(response.msgField, function(prefix, val) {
+                                $('#error-' + prefix).text(val[0]);
+                            });
                                 Swal.fire({
                                     icon: 'error',
                                     title: 'Terjadi Kesalahan',
