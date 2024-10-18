@@ -234,6 +234,8 @@ Route::middleware('auth')->group(function () {
         Route::delete('/barang/{id}', [BarangController::class, 'destroy']);     // menghapus data barang
         Route::get('/barang/import',[BarangController::class, 'import']); //ajax import file
         Route::post('/barang/import_ajax',[BarangController::class, 'import_ajax']); //import excel
+        Route::get('barang/export_excel',[BarangController::class, 'export_excel']); //export excel
+        Route::get('barang/export_pdf',[BarangController::class, 'export_pdf']); //export pdf
     });
 
     Route::middleware(['authorize:ADM,MNG'])->group(function () {

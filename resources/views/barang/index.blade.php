@@ -5,8 +5,8 @@
         <h3 class="card-title">Daftar barang</h3>
         <div class="card-tools">
             <button onclick="modalAction('{{ url('/barang/import') }}')" class="btn btn-info">Import Barang</button>
-            {{-- <a href="{{ url('/barang/export_excel') }}" class="btn btn-primary"><i class="fa fa-file-excel"></i> Export Barang (Excel)</a>
-            <a href="{{ url('/barang/export_pdf') }}" class="btn btn-warning"><i class="fa fa-file-pdf"></i> Export Barang (PDF)</a> --}}
+            <a href="{{ url('/barang/export_excel') }}" class="btn btn-primary"><i class="fa fa-file-excel"></i> Export Barang (Excel)</a>
+            <a href="{{ url('/barang/export_pdf') }}" class="btn btn-warning"><i class="fa fa-file-pdf"></i> Export Barang (PDF)</a>
             <button onclick="modalAction('{{ url('/barang/create_ajax') }}')" class="btn btn-success">Tambah Data (Ajax)</button>
         </div>
     </div>
@@ -41,8 +41,9 @@
         <table class="table table-bordered table-sm table-striped table-hover" id="table-barang">
             <thead>
                 <tr>
+                    <th>No</th>
                     <th>Kode Barang</th>
-                    <th>Kode Barang</th>
+                    <th>Nama Barang</th>
                     <th>Harga Beli</th>
                     <th>Harga Jual</th>
                     <th>Kategori</th>
@@ -79,10 +80,36 @@
                 }
             },
             columns: [
+                { 
+                    data: 'DT_RowIndex', 
+                    name: 'DT_RowIndex', 
+                    className: 'text-center', 
+                    width: "5%", 
+                    orderable: false, 
+                    searchable: false 
+                },
                 { data: "barang_kode", className: "", width: "10%", orderable: true, searchable: true },
-                { data: "barang_nama", className: "", width: "37%", orderable: true, searchable: true },
-                { data: "harga_beli", className: "", width: "10%", orderable: true, searchable: false, render: function(data, type, row) { return new Intl.NumberFormat('id-ID').format(data); } },
-                { data: "harga_jual", className: "", width: "10%", orderable: true, searchable: false, render: function(data, type, row) { return new Intl.NumberFormat('id-ID').format(data); } },
+                { data: "barang_nama", className: "", width: "30%", orderable: true, searchable: true },
+                { 
+                    data: "harga_beli", 
+                    className: "", 
+                    width: "10%", 
+                    orderable: true, 
+                    searchable: false, 
+                    render: function(data, type, row) { 
+                        return new Intl.NumberFormat('id-ID').format(data); 
+                    } 
+                },
+                { 
+                    data: "harga_jual", 
+                    className: "", 
+                    width: "10%", 
+                    orderable: true, 
+                    searchable: false, 
+                    render: function(data, type, row) { 
+                        return new Intl.NumberFormat('id-ID').format(data); 
+                    } 
+                },
                 { data: "kategori.kategori_nama", className: "", width: "14%", orderable: true, searchable: false },
                 { data: "aksi", className: "text-center", width: "14%", orderable: false, searchable: false }
             ]
