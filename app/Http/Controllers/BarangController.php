@@ -34,7 +34,7 @@ class BarangController extends Controller
         ->addIndexColumn()
         ->addColumn('aksi', function ($barang) { // menambahkan kolom aksi
             $btn = '<button onclick="modalAction(\'' . url('/barang/' . $barang->barang_id .
-                '/show_ajax') . '\')" class="btn btn-info btn-sm">Detail</button> ';
+                '/show_ajax') . '\')" class="btn btn-info -sm">Detail</button> ';
             $btn .= '<button onclick="modalAction(\'' . url('/barang/' . $barang->barang_id .
                 '/edit_ajax') . '\')" class="btn btn-warning btn-sm">Edit</button> ';
             $btn .= '<button onclick="modalAction(\'' . url('/barang/' . $barang->barang_id .
@@ -126,6 +126,7 @@ class BarangController extends Controller
         $barang = BarangModel::with('kategori')->find($id);
         return view('barang.show_ajax', ['barang' => $barang]);
     }
+    
     public function edit(string $barang_id){
         $barang = barangmodel::find($barang_id);
         $kategori = kategorimodel::all();

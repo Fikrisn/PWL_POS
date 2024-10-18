@@ -7,6 +7,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\DataTables as DataTablesDataTables;
 use Yajra\DataTables\Facades\DataTables;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class KategoriController extends Controller
 {
@@ -232,5 +235,113 @@ class KategoriController extends Controller
             }
         }
         return redirect('/');
+    }
+
+    public function import()
+    {
+        return view('kategori.import');
+    }
+    public function import_ajax(Request $request)
+    {
+        if ($request->ajax() || $request->wantsJson()) {
+            $rules = [
+                // validasi file harus xls atau xlsx, max 1MB
+                'file_kategori' => ['required', 'mimes:xlsx', 'max:1024']
+            ];
+            $validator = Validator::make($request->all(), $rules);
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validasi Gagal',
+                    'msgField' => $validator->errors()
+                ]);
+            }
+            $file = $request->file('file_kategori'); // ambil file dari request
+            $reader = IOFactory::createReader('Xlsx'); // load reader file excel
+            $reader->setReadDataOnly(true); // hanya membaca data
+            $spreadsheet = $reader->load($file->getRealPath()); // load file excel
+            $sheet = $spreadsheet->getActiveSheet(); // ambil sheet yang aktif
+            $data = $sheet->toArray(null, false, true, true); // ambil data excel
+            $insert = [];
+            if (count($data) > 1) { // jika data lebih dari 1 baris
+                foreach ($data as $baris => $value) {
+                    if ($baris > 1) { // baris ke 1 adalah header, maka lewati
+                        $insert[] = [
+                            'kategori_kode' => $value['B'],
+                            'kategori_nama' => $value['C'],
+                            'created_at' => now(),
+                        ];
+                    }
+                }
+                if (count($insert) > 0) {
+                    // insert data ke database, jika data sudah ada, maka diabaikan
+                    KategoriModel::insertOrIgnore($insert);
+                }
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Data berhasil diimport'
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Tidak ada data yang diimport'
+                ]);
+            }
+        }
+        return redirect('/');
+    }
+
+    public function export_excel()
+    {
+        $kategori = kategorimodel::select( 'kategori_kode', 'kategori_nama')
+            ->get();
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet(); //ambil sheet yang aktif
+        // Set Header Kolom
+        $sheet->setCellValue('A1', 'No');
+        $sheet->setCellValue('B1', 'Kode kategori');
+        $sheet->setCellValue('C1', 'Nama kategori');
+        // Buat header menjadi bold
+        $sheet->getStyle('A1:F1')->getFont()->setBold(true);
+        $no = 1; // Nomor data dimulai dari 1
+        $baris = 2; // Baris data dimulai dari baris ke-2
+        foreach ($kategori as $key => $value) {
+            $sheet->setCellValue('A' . $baris, $no);
+            $sheet->setCellValue('B' . $baris, $value->kategori_kode);
+            $sheet->setCellValue('C' . $baris, $value->kategori_nama);
+            $baris++;
+            $no++;
+        }
+        // Set ukuran kolom otomatis untuk semua kolom
+        foreach (range('A', 'F') as $columnID) {
+            $sheet->getColumnDimension($columnID)->setAutoSize(true);
+        }
+        // Set judul sheet
+        $sheet->setTitle('Data kategori');
+        // Buat writer
+        $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+        $filename = 'Data kategori ' . date('Y-m-d H:i:s') . '.xlsx';
+        // Atur Header untuk Download File Excel
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+        header('Cache-Control: max-age=1');
+        header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+        header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+        header('Cache-Control: cache, must-revalidate');
+        header('Pragma: public');
+        // Simpan file dan kirim ke output
+        $writer->save('php://output');
+        exit;
+    }
+
+    public function export_pdf(){
+        $kategori = kategorimodel::select('kategori_kode','kategori_nama')
+        ->get();
+        $pdf = Pdf::loadView('kategori.export_pdf',['kategori'=>$kategori]);
+        $pdf->setPaper('a4','portrait'); //set ukuran kertas dan orientasi
+        $pdf->setOption("isRemoteEnabled", true); //set true jika ada gambar
+        $pdf->render();
+        return $pdf->stream('Data kategori '.date('Y-m-d H:i:s').'.pdf');
     }
 }
