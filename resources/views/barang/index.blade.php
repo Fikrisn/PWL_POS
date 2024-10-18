@@ -114,7 +114,7 @@
                 { data: "aksi", className: "text-center", width: "14%", orderable: false, searchable: false }
             ]
         });
-
+ 
         $('#table-barang_filter input').unbind().bind().on('keyup', function(e) {
             if (e.keyCode == 13) { // enter key
                 tableBarang.search(this.value).draw();

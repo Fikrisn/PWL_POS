@@ -253,5 +253,5 @@ Route::middleware('auth')->group(function () {
         Route::get('/supplier/{id}/delete_ajax', [SupplierController::class, 'confirm_ajax']); // Untuk tampilkan form confirm delete supplier Ajax
         Route::delete('/supplier/{id}/delete_ajax', [SupplierController::class, 'delete_ajax']); // Untuk hapus data supplier Ajax
         Route::delete('/supplier/{id}', [SupplierController::class, 'destroy']);     // menghapus data supplier
-    });
+    }); 
 });
