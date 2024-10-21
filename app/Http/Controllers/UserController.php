@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Auth;
+
 
 class UserController extends Controller
 {
@@ -369,4 +371,25 @@ class UserController extends Controller
         $pdf->render();
         return $pdf->stream('Data user '.date('Y-m-d H:i:s').'.pdf');
     }
+
+    public function getProfile(Request $request) {
+        // Mendapatkan user yang sedang login
+        $user = Auth::user(); 
+    
+        // Pastikan user ditemukan
+        if (!$user) {
+            return response()->json(['error' => 'User not found'], 404);
+        }
+    
+        // Mengembalikan data user sebagai JSON response
+        return response()->json([
+            'id' => $user->user_id, // Menambahkan ID pengguna jika diperlukan
+            'username' => $user->username, // Mengambil username
+            'name' => $user->nama, // Mengambil nama
+            'level_id' => $user->level_id, // Menambahkan level_id jika diperlukan
+            'email' => $user->email, // Mengambil email
+            'avatar' => $user->avatar ? asset('storage/' . $user->avatar) : asset('images/default-avatar.png'), // URL avatar
+        ]);
+    }
+    
 }

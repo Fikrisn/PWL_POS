@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\LevelModel;
 use App\Models\UserModel;
+use App\Models\LevelModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use App\Models\User;
-use Illuminate\Support\Facades\Validator; // Tambahkan ini
+use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
@@ -22,10 +21,8 @@ class AuthController extends Controller
 
     public function postlogin(Request $request)
     {
-        // Cek apakah request adalah ajax atau ingin JSON
         if ($request->ajax() || $request->wantsJson()) {
             $credentials = $request->only('username', 'password');
-            
             if (Auth::attempt($credentials)) {
                 return response()->json([
                     'status' => true,
@@ -33,7 +30,6 @@ class AuthController extends Controller
                     'redirect' => url('/')
                 ]);
             }
-
             return response()->json([
                 'status' => false,
                 'message' => 'Login Gagal'
@@ -41,56 +37,72 @@ class AuthController extends Controller
         }
         return redirect('login');
     }
-
     public function logout(Request $request)
     {
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+        
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['message' => 'Logged out successfully', 'redirect' => 'login']);
+        }
+        
         return redirect('login');
     }
 
-    public function register()
+    public function postregister()
     {
-        $level = LevelModel::select('level_id', 'level_nama')->get();
-
-        return view('auth.register')->with('level', $level);
+        $level = LevelModel::all();
+        return view('auth.register', compact('level'));
     }
 
-    public function postRegister(Request $request)
+    public function register(Request $request)
     {
-        if ($request->ajax() || $request->wantsJson()) {
-            $rules = [
-                'level_id' => 'required|integer',
-                'username' => 'required|string|min:3|unique:m_user,username',
-                'nama' => 'required|string|max:100',
-                'password' => 'required|min:5'
-            ];
+        $validator = Validator::make($request->all(), [
+            'level_id' => 'required|integer|exists:m_level,level_id',
+            'username' => 'required|string|min:4|max:20|unique:m_user,username',
+            'nama' => 'required|string|max:255',
+            'password' => 'required|string|min:6|confirmed',
+        ]);
 
-            $validator = Validator::make($request->all(), $rules);
-            if ($validator->fails()) {
+        if ($validator->fails()) {
+            if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'Validasi Gagal',
-                    'msgField' => $validator->errors(),
+                    'message' => 'Registrasi Gagal',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        try {
+            UserModel::create([
+                'level_id' => $request->level_id,
+                'username' => $request->username,
+                'nama' => $request->nama,
+                'password' => Hash::make($request->password),
+            ]);
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Registrasi Berhasil',
+                    'redirect' => route('login')
                 ]);
             }
 
-            // Hash password sebelum disimpan
-            $data = $request->all();
-            $data['password'] = Hash::make($request->password);
-
-            // Simpan data user
-            usermodel::create($data);
-
-            return response()->json([
-                'status' => true,
-                'message' => 'Data user berhasil disimpan',
-                'redirect' => url('login') // Redirect ke halaman login
-            ]);
+            return redirect()->route('login')->with('success', 'Registrasi berhasil! Silakan login dengan kredensial Anda.');
+        } catch (\Exception $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Registrasi Gagal: ' . $e->getMessage()
+                ], 500);
+            }
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat registrasi: ' . $e->getMessage());
         }
-
-        // Jika bukan AJAX, arahkan ke halaman login
-        return redirect('login')->with('success', 'Registrasi berhasil!');
     }
 }

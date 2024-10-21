@@ -36,54 +36,27 @@
       </div>
     </li>
 
-    <!-- Messages Dropdown Menu -->
-    <li class="nav-item dropdown">
-      <a class="nav-link" data-toggle="dropdown" href="#">
-        <i class="far fa-comments"></i>
-        <span class="badge badge-danger navbar-badge">3</span>
-      </a>
-      <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-        <!-- Messages content here -->
-      </div>
-    </li>
-
-    <!-- Notifications Dropdown Menu -->
-    <li class="nav-item dropdown">
-      <a class="nav-link" data-toggle="dropdown" href="#">
-        <i class="far fa-bell"></i>
-        <span class="badge badge-warning navbar-badge">15</span>
-      </a>
-      <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-        <!-- Notifications content here -->
-      </div>
-    </li>
-
     <li class="nav-item">
       <a class="nav-link" data-widget="fullscreen" href="#" role="button">
         <i class="fas fa-expand-arrows-alt"></i>
       </a>
     </li>
     
+    <!-- Profile Menu -->
+    <li class="nav-item">
+      <a href="{{ route('profil.index') }}" class="nav-link" title="Edit Profil">
+        <i class="fas fa-user"></i>
+      </a>
+    </li>
+
     <!-- Logout Menu -->
     <li class="nav-item">
-    <form action="{{ url('logout') }}" method="GET" role="button">
+      <form action="{{ url('logout') }}" method="POST" role="button">
         @csrf
         <button type="submit" class="btn btn-danger">
-            <i class="fas fa-sign-out-alt"></i> Logout
+          <i class="fas fa-sign-out-alt"></i> Logout
         </button>
-    </form>
-</li>
-
+      </form>
+    </li>
   </ul>
 </nav>
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-      const logoutLink = document.getElementById('logout-link');
-      const logoutForm = document.getElementById('logout-form');
-  
-      logoutLink.addEventListener('click', function(e) {
-          e.preventDefault();
-          logoutForm.submit();
-      });
-  });
-  </script>
