@@ -72,4 +72,9 @@ class ProfilController extends Controller
 
         return response()->json(['success' => true, 'file_name' => $fileName]);
     }
+
+    public function __construct()
+    {
+        $this->middleware('auth'); // Memastikan pengguna terautentikasi
+    }
 }

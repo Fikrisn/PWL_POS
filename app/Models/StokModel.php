@@ -6,23 +6,22 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-
-class StokModel extends Model
+class stokmodel extends Model
 {
-    protected $table = 't_stok';        // Mendefinisikan nama tabel yang digunakan oleh model ini
-    protected $primaryKey = 'stok_id';  //Mendefinisikan primary key dari tabel yang digunakan
+    protected $table = 't_stok';
+    protected $primaryKey = 'stok_id';
 
-    protected $fillable = ['stok_id', 'supplier_id', 'barang_id', 'user_id', 'user_id', 'stok_tanggal', 'stok_jumlah']; 
-    
-    public function user():BelongsTo {
-        return $this->belongsTo(UserModel::class);
+    protected $fillable = ['stok_id','supplier_id','barang_id','user_id','stok_tanggal','stok_jumlah'];
+
+    public function supplier():BelongsTo{
+        return $this->belongsTo(suppliermodel::class,'supplier_id', 'supplier_id');
     }
 
-    public function barang():BelongsTo {
-        return $this->belongsTo(BarangModel::class);
+    public function barang():BelongsTo{
+        return $this->belongsTo(barangmodel::class,'barang_id', 'barang_id');
     }
 
-    public function supplier():BelongsTo {
-        return $this->belongsTo(SupplierModel::class);
+    public function user():BelongsTo{
+        return $this->belongsTo(usermodel::class,'user_id', 'user_id');
     }
 }

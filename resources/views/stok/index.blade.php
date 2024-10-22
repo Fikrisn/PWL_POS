@@ -5,23 +5,42 @@
             <h3 class="card-title">{{ $page->title }}</h3>
             <div class="card-tools">
                 <a class="btn btn-sm btn-primary mt-1" href="{{ url('stok/create') }}">Tambah</a>
+                
             </div>
         </div>
         <div class="card-body">
-            @if (@session('success'))z
-                <div class="alert alert-success">{{ session('success')}}</div>
+            @if (@session('success'))
+                <div class="alert alert-success">{{ session('success') }}</div>
             @endif
             @if (session('error'))
-                <div class="alert alert-danger">{{session('error')}}</div>
+                <div class="alert alert-danger">{{ session('error') }}</div>
             @endif
-            <table class="table table-bordered table-striped table-hover table-sm" id="table_stok">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group row">
+                        <label class="col-1 control-label col-form-label">Filter </label>
+                        <div class="col-3">
+                            <select class="form-control" id="supplier_id" name="supplier_id" required>
+                                <option value="">- Semua -</option>
+                                @foreach ($supplier as $item)
+                                    <option value="{{ $item->supplier_id }}">{{ $item->supplier_nama }}</option>
+                                @endforeach
+                            </select>
+                            <small class="form-text text-muted">Supplier Barang</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <table class="table table-bordered table-striped table-hover table-sm" id="table_user">
                 <thead>
                     <tr>
-                        <th >Barang</th>
-                        <th >Supplier</th>
-                        <th >Stok</th>
-                        <th >User</th>
-                        <th >Aksi</th>
+                        <th>ID</th>
+                        <th>Nama supplier</th>
+                        <th>Nama Barang</th>
+                        <th>Nama Pekerja</th>
+                        <th>Tanggal stok </th>
+                        <th>Jumlah stok</th>
+                        <th>Aksi</th>
                     </tr>
                 </thead>
             </table>
@@ -33,41 +52,64 @@
 @push('js')
     <script>
         $(document).ready(function() {
-            var dataStok = $('#table_stok').DataTable({
+            var dataUser = $('#table_user').DataTable({
                 // serverSide: true, jika ingin menggunakan server side processing
                 serverSide: true,
                 ajax: {
                     "url": "{{ url('stok/list') }}",
                     "dataType": "json",
                     "type": "POST",
-                    "data": function (d){
-                        d.stok_id = $('#stok_id').val();
+                    "data": function(d) {
+                        d.supplier_id = $('#supplier_id').val();
                     }
                 },
                 columns: [{
-                    data: "barang_id",
-                    className: "",
-                    orderable: true,
-                    searchable: true
-                }, {
-                    data: "supplier_nama",
-                    className: "",
-                    orderable: false,
-                    searchable: false
-                }, {
-                    data: "stok_jumlah",
-                    className: "",
-                    orderable: false,
-                    searchable: false
-                }, {
-                    data: "username",
-                    className: "",
-                    orderable: false,
-                    searchable: false
-                }]
+                        data: "DT_RowIndex",
+                        className: "text-center",
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: "supplier.supplier_nama",
+                        className: "",
+                        orderable: true,
+                        searchable: true
+                    },
+                    {
+                        data: "barang.barang_nama",
+                        className: "",
+                        orderable: true,
+                        searchable: true
+                    },
+                    {
+                        data: "user.nama",
+                        className: "",
+                        orderable: false,
+                        searchable: false,
+                    },
+                    {
+                        data: "stok_tanggal",
+                        className: "",
+                        orderable: true,
+                        searchable: true
+                    },
+                    {
+                        data: "stok_jumlah",
+                        className: "",
+                        orderable: true,
+                        searchable: true
+                    },
+                    {
+                        data: "aksi",
+                        className: "",
+                        orderable: false,
+                        searchable: false
+                    }
+                ]
+
             });
-            $('#stok_id').on('change',function(){
-                dataStok.ajax.reload();
+            $('#supplier_id').on('change', function() {
+                dataUser.ajax.reload();
             })
         });
     </script>
