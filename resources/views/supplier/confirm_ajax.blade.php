@@ -71,6 +71,7 @@
                                     text: response.message
                                 });
                                 dataSupplier.ajax.reload();
+                                location.reload();
                             } else {
                                 $('.error-text').text('');
                                 $.each(response.msgField, function(prefix, val) {

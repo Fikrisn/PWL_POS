@@ -12,8 +12,6 @@ use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Support\Facades\Auth;
-
 
 class UserController extends Controller
 {
@@ -47,18 +45,9 @@ class UserController extends Controller
             // menambahkan kolom index / no urut (default nama kolom: DT_RowIndex)
             ->addIndexColumn()
             ->addColumn('aksi', function ($user) { // menambahkan kolom aksi
-                $btn = '<a href="' . url('/user/' . $user->user_id) . '" class="btn btn-info btnsm">Detail</a> ';
-                $btn .= '<a href="' . url('/user/' . $user->user_id . '/edit') . '" class="btn btn-warning btn-sm">Edit</a> ';
-                $btn .= '<form class="d-inline-block" method="POST" action="' .
-                    url('/user/' . $user->user_id) . '">'
-                    . csrf_field() . method_field('DELETE') .
-                    '<button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'Apakah Anda yakit menghapus data ini?\');">Hapus</button></form>';
-                $btn = '<button onclick="modalAction(\'' . url('/user/' . $user->user_id .
-                    '/show_ajax') . '\')" class="btn btn-info btn-sm">Detail</button> ';
-                $btn .= '<button onclick="modalAction(\'' . url('/user/' . $user->user_id .
-                    '/edit_ajax') . '\')" class="btn btn-warning btn-sm">Edit</button> ';
-                $btn .= '<button onclick="modalAction(\'' . url('/user/' . $user->user_id .
-                    '/delete_ajax') . '\')" class="btn btn-danger btn-sm">Hapus</button> ';
+                $btn = '<button onclick="modalAction(\'' . url('/user/' . $user->user_id . '/show_ajax') . '\')" class="btn btn-info btn-sm">Detail</button> ';
+                $btn .= '<button onclick="modalAction(\'' . url('/user/' . $user->user_id . '/edit_ajax') . '\')" class="btn btn-warning btn-sm">Edit</button> ';
+                $btn .= '<button onclick="modalAction(\'' . url('/user/' . $user->user_id . '/delete_ajax') . '\')" class="btn btn-danger btn-sm">Hapus</button> ';
                 return $btn;
             })
             ->rawColumns(['aksi']) // memberitahu bahwa kolom aksi adalah html
@@ -115,6 +104,16 @@ class UserController extends Controller
         return view('user.show',['breadcrumb' =>$breadcrumb,'page'=>$page,'user'=>$user, 'activeMenu'=>$activeMenu]);
     }
 
+    // Menampilkan halaman detail user Ajax
+    public function show_ajax(string $id)
+    {
+        $user = UserModel::with('level')->find($id);
+        $page = (object)[
+            'title' => 'Detail User'
+        ];
+        return view('user.show_ajax', ['user' => $user, 'page' => $page]);
+    }
+
     // Menampilkan halaman form edit user Ajax
     public function edit_ajax(string $id)
     {
@@ -123,45 +122,45 @@ class UserController extends Controller
         return view('user.edit_ajax', ['user' => $user, 'level' => $level]);
     }
 
-        // Menyimpan perubahan data user Ajax
-        public function update_ajax(Request $request, $id)
-        {
-            //cek apakah request dari ajax
-            if ($request->ajax() || $request->wantsJson()) {
-                $rules = [
-                    'level_id' => 'required|integer',
-                    'username' => 'required|max:20|unique:m_user,username,' .$id. ',user_id',
-                    'nama' => 'required|max:100',
-                    'password' => 'nullable|min:6|max:20'
-                ];
-                // use Illuminate\Support\Facades\Validation;
-                $validator = Validator::make($request->all(), $rules);
-                if ($validator->fails()) {
-                    return response()->json([
-                        'status' => false, // response status, false: error/gagal, true: berhasil
-                        'message' => 'Validasi Gagal',
-                        'msgField' => $validator->errors(), // pesan error validasi
-                    ]);
-                }
-                $check = UserModel::find($id);
-                if ($check) {
-                    if (!$request->filled('password')) { // jika password tidak diisi, maka hapus dari request
-                        $request->request->remove('password');
-                    }
-                    $check->update($request->all());
-                    return response()->json([
-                        'status' => true,
-                        'message' => 'Data berhasil diupdate'
-                    ]);
-                } else {
-                    return response()->json([
-                        'status' => false,
-                        'message' => 'Data tidak ditemukan'
-                    ]);
-                }
+    // Menyimpan perubahan data user Ajax
+    public function update_ajax(Request $request, $id)
+    {
+        //cek apakah request dari ajax
+        if ($request->ajax() || $request->wantsJson()) {
+            $rules = [
+                'level_id' => 'required|integer',
+                'username' => 'required|max:20|unique:m_user,username,' .$id. ',user_id',
+                'nama' => 'required|max:100',
+                'password' => 'nullable|min:6|max:20'
+            ];
+            // use Illuminate\Support\Facades\Validation;
+            $validator = Validator::make($request->all(), $rules);
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false, // response status, false: error/gagal, true: berhasil
+                    'message' => 'Validasi Gagal',
+                    'msgField' => $validator->errors(), // pesan error validasi
+                ]);
             }
-            return redirect('/');
+            $check = UserModel::find($id);
+            if ($check) {
+                if (!$request->filled('password')) { // jika password tidak diisi, maka hapus dari request
+                    $request->request->remove('password');
+                }
+                $check->update($request->all());
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Data berhasil diupdate'
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Data tidak ditemukan'
+                ]);
+            }
         }
+        return redirect('/');
+    }
 
     public function update(Request $request, string $id){
         $request->validate([
@@ -198,31 +197,32 @@ class UserController extends Controller
         }
     }
 
-        // Menampilkan halaman confirm hapus
-        public function confirm_ajax(string $id) {
+    // Menampilkan halaman confirm hapus
+    public function confirm_ajax(string $id) {
+        $user = UserModel::find($id);
+        return view('user.confirm_ajax', ['user' => $user]);
+    }
+
+    // Menghapus data user dengan AJAX
+    public function delete_ajax(Request $request, $id) {
+        //cek apakah request dari ajax
+        if($request->ajax() || $request->wantsJson()) {
             $user = UserModel::find($id);
-            return view('user.confirm_ajax', ['user' => $user]);
-        }
-        // Menghapus data user dengan AJAX
-        public function delete_ajax(Request $request, $id) {
-            //cek apakah request dari ajax
-            if($request->ajax() || $request->wantsJson()) {
-                $user = UserModel::find($id);
-                if($user) {
-                    $user->delete();
-                    return response()->json([
-                        'status' => true,
-                        'message' => 'Data berhasil dihapus'
-                    ]);
-                } else {
-                    return response()->json([
-                        'status' => false,
-                        'message' => 'Data tidak ditemukan'
-                    ]);
-                }
+            if($user) {
+                $user->delete();
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Data berhasil dihapus'
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Data tidak ditemukan'
+                ]);
             }
-            return redirect('/');
         }
+        return redirect('/');
+    }
 
     // Menampilkan halaman form tambah_ajax user
     public function create_ajax() {
@@ -315,7 +315,7 @@ class UserController extends Controller
 
     public function export_excel()
     {
-        $user = usermodel::select('level_id', 'username', 'nama')
+        $user = usermodel::select('level_id', 'username', 'nama', 'password')
             ->orderBy('level_id')
             ->with('level')
             ->get();
@@ -325,21 +325,23 @@ class UserController extends Controller
         $sheet->setCellValue('A1', 'No');
         $sheet->setCellValue('B1', 'username');
         $sheet->setCellValue('C1', 'nama');
-        $sheet->setCellValue('D1', 'level');
+        $sheet->setCellValue('D1', 'password');
+        $sheet->setCellValue('F1', 'level');
         // Buat header menjadi bold
-        $sheet->getStyle('A1:D1')->getFont()->setBold(true);
+        $sheet->getStyle('A1:F1')->getFont()->setBold(true);
         $no = 1; // Nomor data dimulai dari 1
         $baris = 2; // Baris data dimulai dari baris ke-2
         foreach ($user as $key => $value) {
             $sheet->setCellValue('A' . $baris, $no);
             $sheet->setCellValue('B' . $baris, $value->username);
             $sheet->setCellValue('C' . $baris, $value->nama);
-            $sheet->setCellValue('D' . $baris, $value->level->level_nama);
+            $sheet->setCellValue('D' . $baris, $value->password);
+            $sheet->setCellValue('E' . $baris, $value->level->level_nama);
             $baris++;
             $no++;
         }
         // Set ukuran kolom otomatis untuk semua kolom
-        foreach (range('A', 'D') as $columnID) {
+        foreach (range('A', 'F') as $columnID) {
             $sheet->getColumnDimension($columnID)->setAutoSize(true);
         }
         // Set judul sheet
@@ -371,25 +373,4 @@ class UserController extends Controller
         $pdf->render();
         return $pdf->stream('Data user '.date('Y-m-d H:i:s').'.pdf');
     }
-
-    public function getProfile(Request $request) {
-        // Mendapatkan user yang sedang login
-        $user = Auth::user(); 
-    
-        // Pastikan user ditemukan
-        if (!$user) {
-            return response()->json(['error' => 'User not found'], 404);
-        }
-    
-        // Mengembalikan data user sebagai JSON response
-        return response()->json([
-            'id' => $user->user_id, // Menambahkan ID pengguna jika diperlukan
-            'username' => $user->username, // Mengambil username
-            'name' => $user->nama, // Mengambil nama
-            'level_id' => $user->level_id, // Menambahkan level_id jika diperlukan
-            'email' => $user->email, // Mengambil email
-            'avatar' => $user->avatar ? asset('storage/' . $user->avatar) : asset('images/default-avatar.png'), // URL avatar
-        ]);
-    }
-    
 }
