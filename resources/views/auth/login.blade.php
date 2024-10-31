@@ -110,7 +110,7 @@
                     </div>
                     <div class="row mt-2">
                         <div class="col-12 text-center">
-                            <p>Tidak punya akun? <a href="{{ url('register') }}" class="btn btn-success btn-block">Daftar</a></p>
+                            <p>Tidak punya akun? <a href="{{ url('/register') }}" class="btn btn-success btn-block">Daftar</a></p>
                         </div>
                     </div>
                 </form>
@@ -150,6 +150,21 @@
                         minlength: 5,
                     }
                 },
+                messages: {
+                    username: {
+                        required: "Username wajib diisi",  // Pesan jika kolom username kosong
+                        minlength: "Username minimal harus 4 karakter",
+                        maxlength: "Username maksimal 20 karakter"
+                    },
+                    password: {
+                        required: "Password wajib diisi",  // Pesan jika kolom password kosong
+                        minlength: "Password minimal harus 5 karakter"
+                    }
+                },
+                errorPlacement: function(error, element) {
+                    error.addClass('error-text text-danger'); // Tambahkan kelas untuk error text
+                    error.insertAfter(element.closest('.input-group')); // Tampilkan error tepat setelah elemen input
+                },
                 submitHandler: function(form) {
                     $.ajax({
                         url: form.action,
@@ -165,9 +180,9 @@
                                     window.location = response.redirect; // Arahkan ke halaman login
                                 });
                             } else {
-                                $('.error-text').text('');
-                                $.each(response.msgField, function(prefix, val) {
-                                    $('#error-' + prefix).text(val[0]);
+                                $('.error-text').text(''); // Bersihkan error sebelumnya
+                                $.each(response.errors, function(prefix, val) {
+                                    $('#error-' + prefix).text(val[0]); // Tampilkan error baru
                                 });
                                 Swal.fire({
                                     icon: 'error',
@@ -181,6 +196,7 @@
                 }
             });
         });
+
     </script>
 </body>
 
